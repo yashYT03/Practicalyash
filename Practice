@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void sort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                int temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+void cscan(int requests[], int n, int head, int disk_size, int direction) {
+    int seek_sequence[n + 2];
+    int seek_count = 0, index = 0;
+    int left[n], right[n], left_size = 0, right_size = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (requests[i] < head)
+            left[left_size++] = requests[i];
+        else
+            right[right_size++] = requests[i];
+    }
+
+    sort(left, left_size);
+    sort(right, right_size);
+
+    if (direction == 0) { // Moving left
+        for (int i = left_size - 1; i >= 0; i++)
+            seek_sequence[index++] = left[i];
+
+        seek_sequence[index++] = 0;
+        seek_sequence[index++] = disk_size - 1;
+
+        for (int i = right_size - 1; i >= 0; i--)
+            seek_sequence[index++] = right[i];
+    } else { // Moving right
+        for (int i = 0; i < right_size; i++)
+            seek_sequence[index++] = right[i];
+
+        seek_sequence[index++] = disk_size - 1;
+        seek_sequence[index++] = 0;
+
+        for (int i = 0; i < left_size; i++)
+            seek_sequence[index++] = left[i];
+    }
+
+    printf("Seek Sequence: ");
+    for (int i = 0; i < index; i++) {
+        printf("%d ", seek_sequence[i]);
+        if (i > 0)
+            seek_count += abs(seek_sequence[i] - seek_sequence[i - 1]);
+    }
+    
+    printf("\nTotal Head Movements: %d\n", seek_count);
+}
+
+int main() {
+    int n = 7, disk_size = 200, head = 40, direction = 0;
+    int requests[] = {23, 89, 132, 42, 187, 69, 36, 55};
+
+    printf("Enter total disk size: ");
+    scanf("%d", &disk_size);
+    printf("Enter current head position: ");
+    scanf("%d", &head);
+    printf("Enter direction (0 for left, 1 for right): ");
+    scanf("%d", &direction);
+    printf("Enter number of requests: ");
+    scanf("%d", &n);
+
+    int request_queue[n];
+    printf("Enter request queue: ");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &request_queue[i]);
+
+    cscan(request_queue, n, head, disk_size, direction);
+
+    return 0;
+}
